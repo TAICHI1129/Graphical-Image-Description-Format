@@ -1,39 +1,46 @@
-# GIDFP 1.0
-## Graphical Image Description Format Protocol
+GIDFP
 
-Version: 1.0
-Status: Draft
+Graphical Image Description Format Protocol
 
---------------------------------------------------
-1. OVERVIEW
---------------------------------------------------
+Version 1.0 Draft
 
-Graphical Image Description Format (GIDF) is a text-based
-image description format.
 
-Instead of storing pixels directly, GIDF stores drawing
-rules, mathematical expressions, colors, and graphical
-objects.
+---
 
-Recommended use cases:
+1. Overview
 
-- Logos
-- Icons
-- UI elements
-- Technical diagrams
-- Mathematical graphics
-- Simple illustrations
+Graphical Image Description Format Protocol (GIDFP) defines the syntax and rendering rules for Graphical Image Description Format (GIDF) files.
 
---------------------------------------------------
-2. FILE STRUCTURE
---------------------------------------------------
+Unlike raster image formats, GIDF stores graphical descriptions, mathematical expressions, and drawing instructions rather than individual pixels.
+
+GIDF is intended for:
+
+Logos
+
+Icons
+
+Web graphics
+
+UI elements
+
+Technical diagrams
+
+Mathematical graphics
+
+
+GIDF is not optimized for photographic images.
+
+
+---
+
+2. File Structure
 
 A GIDF file consists of:
 
 Header
-Canvas Size
-Variables (Optional)
-Drawing Commands
+Canvas Definition
+Variable Definitions (optional)
+Drawing Instructions
 
 Example:
 
@@ -44,21 +51,23 @@ FFFFFF(*)
 
 ED1A3D(CF(100,100,50))
 
---------------------------------------------------
-3. HEADER
---------------------------------------------------
 
-The first line MUST be:
+---
 
-GIDF
+3. Header
 
-Example:
+The first line of a valid file MUST be:
 
 GIDF
 
---------------------------------------------------
-4. CANVAS SIZE
---------------------------------------------------
+Future versions may support:
+
+GIDF|2.0
+
+
+---
+
+4. Canvas Definition
 
 Syntax:
 
@@ -68,272 +77,300 @@ Example:
 
 size|1920*1080
 
-Rules:
+Requirements:
 
-- WIDTH MUST be greater than 0
-- HEIGHT MUST be greater than 0
-- Unit is pixels
+Width > 0
 
---------------------------------------------------
-5. COLORS
---------------------------------------------------
+Height > 0
+
+Integers only
+
+
+
+---
+
+5. Color Format
 
 Colors are represented as 6-digit hexadecimal RGB values.
 
 Syntax:
 
-RRGGBB(command)
+RRGGBB
 
 Examples:
 
-FF0000(...)
-00FF00(...)
-0000FF(...)
+FFFFFF
+000000
+ED1A3D
+00FF00
 
---------------------------------------------------
-6. VARIABLES
---------------------------------------------------
 
-Variables may be defined using:
+---
+
+6. Variables
+
+Variables may be declared before drawing instructions.
+
+Syntax:
 
 var name=value
 
-Examples:
+Example:
 
 var cx=100
 var cy=100
-var radius=50
+var r=50
 
-Variables may be used in commands.
+Variables are case-sensitive.
 
-Example:
 
-FF0000(CF(cx,cy,radius))
+---
 
---------------------------------------------------
-7. DRAWING COMMANDS
---------------------------------------------------
+7. Drawing Instructions
 
-7.1 Circle
+General syntax:
 
-C(x,y,r)
-
-Draws a circle outline.
-
-Example:
-
-FF0000(C(100,100,50))
-
---------------------------------------------------
-
-7.2 Filled Circle
-
-CF(x,y,r)
-
-Draws a filled circle.
+COLOR(SHAPE(parameters))
 
 Example:
 
 FF0000(CF(100,100,50))
 
---------------------------------------------------
 
-7.3 Rectangle
+---
 
-R(x1,y1,x2,y2)
+8. Built-in Shapes
 
-Draws a rectangle outline.
+Circle
+
+Definition:
+
+C(x,y,r)
+
+Mathematical form:
+
+genui{"math_block_widget_always_prefetch_v2":{"content":"(x-a)^2+(y-b)^2=r^2"}}Example:
+
+FF0000(C(100,100,50))
+
+
+---
+
+Filled Circle
+
+Definition:
+
+CF(x,y,r)
+
+Mathematical form:
+
+(x-a)^2+(y-b)^2\le r^2
 
 Example:
 
-000000(R(10,10,100,100))
+FF0000(CF(100,100,50))
 
---------------------------------------------------
 
-7.4 Filled Rectangle
+---
+
+Rectangle
+
+Definition:
+
+R(x1,y1,x2,y2)
+
+Example:
+
+0000FF(R(10,10,100,100))
+
+
+---
+
+Filled Rectangle
+
+Definition:
 
 RF(x1,y1,x2,y2)
-
-Draws a filled rectangle.
 
 Example:
 
 0000FF(RF(10,10,100,100))
 
---------------------------------------------------
 
-7.5 Ellipse
+---
 
-E(x,y,rx,ry)
+Line
 
-Draws an ellipse outline.
-
-Example:
-
-00FF00(E(100,100,50,30))
-
---------------------------------------------------
-
-7.6 Filled Ellipse
-
-EF(x,y,rx,ry)
-
-Draws a filled ellipse.
-
-Example:
-
-00FF00(EF(100,100,50,30))
-
---------------------------------------------------
-
-7.7 Line
+Definition:
 
 L(x1,y1,x2,y2)
 
-Draws a straight line.
-
 Example:
 
-000000(L(0,0,200,200))
+000000(L(0,0,199,199))
 
---------------------------------------------------
-8. BACKGROUND FILL
---------------------------------------------------
 
-Syntax:
+---
 
-RRGGBB(*)
+Ellipse
+
+Definition:
+
+E(x,y,rx,ry)
+
+Mathematical form:
+
+\frac{(x-a)^2}{r_x^2}+\frac{(y-b)^2}{r_y^2}=1
+
+
+---
+
+Filled Ellipse
+
+Definition:
+
+EF(x,y,rx,ry)
+
+Mathematical form:
+
+\frac{(x-a)^2}{r_x^2}+\frac{(y-b)^2}{r_y^2}\le1
+
+
+---
+
+9. Canvas Fill
+
+Entire canvas:
+
+FFFFFF(*)
+
+Meaning:
+
+For all pixels:
+    color = FFFFFF
+
+
+---
+
+10. Layer Order
+
+Instructions are rendered from top to bottom.
 
 Example:
 
 FFFFFF(*)
 
-Fills the entire canvas with the specified color.
+0000FF(CF(100,100,80))
 
---------------------------------------------------
-9. MATHEMATICAL EXPRESSIONS
---------------------------------------------------
+FFFFFF(CF(100,100,40))
 
-GIDF supports mathematical image generation.
+Result:
+
+White background
+
+Blue circle
+
+White hole in center
+
+
+
+---
+
+11. Mathematical Expressions
+
+Implementations MAY support direct equations.
 
 Example:
 
 000000(
-y=100+50*sin(x/10)
+y=100+50*sin(x/20)
 )
 
-Pixels satisfying the expression SHALL be rendered.
-
-Supported operators:
-
-+
--
-*
-/
-^
-=
-<
->
-<=
->=
-
-Supported functions:
+Supported functions MAY include:
 
 sin()
 cos()
 tan()
 sqrt()
 abs()
+log()
+exp()
 
---------------------------------------------------
-10. BUILT-IN SHAPE DEFINITIONS
---------------------------------------------------
 
-Circle:
+---
 
-C : (x-a)^2 + (y-b)^2 = r^2
+12. Comments
 
-Filled Circle:
+Lines beginning with:
 
-CF : (x-a)^2 + (y-b)^2 <= r^2
+#
 
-Ellipse:
-
-E : ((x-a)^2/rx^2)+((y-b)^2/ry^2)=1
-
-Filled Ellipse:
-
-EF : ((x-a)^2/rx^2)+((y-b)^2/ry^2)<=1
-
---------------------------------------------------
-11. COMMENTS
---------------------------------------------------
-
-Comments begin with #
+are ignored.
 
 Example:
 
-# This is a comment
-
---------------------------------------------------
-12. EXAMPLE FILE
---------------------------------------------------
-
-GIDF
-size|500*500
-
-# Variables
-
-var cx=250
-var cy=250
-var r=100
-
-# Background
+# Logo background
 
 FFFFFF(*)
 
-# Red circle
 
-FF0000(CF(cx,cy,r))
+---
 
-# Black border
+13. File Extension
 
-000000(C(cx,cy,r))
-
---------------------------------------------------
-13. FILE EXTENSION
---------------------------------------------------
-
-Official extension:
+Recommended extension:
 
 .gidf
 
---------------------------------------------------
-14. MIME TYPE
---------------------------------------------------
-
-Recommended MIME type:
+MIME type:
 
 image/gidf
 
---------------------------------------------------
-15. FUTURE EXTENSIONS
---------------------------------------------------
 
-Reserved for future versions:
+---
 
-Polygon:
-P(...)
-PF(...)
+14. Example File
 
-Layers:
-layer
+GIDF
+size|800*600
 
-Transparency:
-alpha
+# Background
+FFFFFF(*)
 
-Gradients:
-gradient
+# Red circle
+ED1A3D(CF(400,300,150))
 
-Image embedding:
-img(...)
+# Black border
+000000(C(400,300,150))
+
+
+---
+
+15. Design Goals
+
+1. Human-readable
+
+
+2. Text-editable
+
+
+3. Lossless
+
+
+4. Resolution-independent
+
+
+5. Efficient for logos and graphics
+
+
+6. Mathematical representation support
+
+
+7. Simple implementation
+
+
+
+
+---
+
+End of GIDFP Version 1.0 Draft
